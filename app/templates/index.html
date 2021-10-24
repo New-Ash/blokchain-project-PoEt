@@ -3,46 +3,53 @@
 
 {% block content %}
 	<br>
-
-	<center>
 	<form action="/submit" id="textform" method="post">
-	    <textarea name="content" rows="4" cols="50" placeholder="Just write whatever you want to..."></textarea>
+		<div class="space">
+			<input type="text" name="author" placeholder="Customer's name">
+		</div>
+		
 	    <br>
-	    <input type="text" name="author" placeholder="Your name">
-	    <input type="submit" value="Post">
+		<div class="space">
+			<input type="text" name="content" placeholder="Amount">
+		</div>
+	    
+		<br>
+		<input type="submit" value="Confirm Transaction">
 	</form>
-	</center>
-
 	<br>
 
-	<a href="{{node_address}}/mine" target="_blank"><button>Request to mine</button></a>
-	<a href="/"><button>Resync</button></a>
+	<a href="{{node_address}}/mine" target="_blank"><button>Mine block</button></a>
+	<a href="/"><button>Refresh</button></a>
 
 	<div style="margin: 20px;">
 
     {% for post in posts %}
     <div class="post_box">
 	   <div class="post_box-header">
-	      <div class="post_box-options"><button class="option-btn">Reply</button></div>
-	      <div style="background: rgb(0, 97, 146) none repeat scroll 0% 0%; box-shadow: rgb(0, 97, 146) 0px 0px 0px 2px;" class="post_box-avatar">{{post.author[0]}}</div>
-	      <div class="name-header">{{post.author}}</div>
 	      <div class="post_box-subtitle"> Posted at <i>{{readable_time(post.timestamp)}}</i></div>
 	   </div>
 	   <div>
 	      <div class="post_box-body">
-	         <p>{{post.content}}</p>
+	         <p>Customer Name : {{post.author}}</p>
+			 <p>Amount : {{post.content}}</p>
 	      </div>
 	   </div>
 	</div>
 	{% endfor %}
 
 	<style>
+		.space {
+			padding: 5px 0px 0px 7px;
+		}
 		.post_box {
 		    background: #fff;
 		    padding: 12px 0px 0px 12px;
-		    margin-top: 0px;
-		    margin-bottom: 8px;
-		    border-top: 1px solid #f0f0f0;
+		    margin-top: 7px;
+		    margin-bottom: 7px;
+		    border-top: 3px solid #2cdf14;
+			border-bottom:  3px solid #2cdf14;
+			border-left: 3px solid #2cdf14;
+			border-right:  3px solid #2cdf14;
 		}
 
 		.post_box-header {
