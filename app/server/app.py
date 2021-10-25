@@ -15,12 +15,13 @@ class Block:
         self.nonce = nonce
 
     def compute_hash(self):
+
         block_string = json.dumps(self.__dict__, sort_keys=True)
         return sha256(block_string.encode()).hexdigest()
 
 
 class Blockchain:
-
+    # difficulty of our PoW algorithm
     difficulty = 2
 
     def __init__(self):
@@ -28,10 +29,12 @@ class Blockchain:
         self.chain = []
 
     def create_genesis_block(self):
+
         genesis_block = Block(0, [], 0, "0")
         genesis_block.hash = genesis_block.compute_hash()
         self.chain.append(genesis_block)
 
+    @property
     def last_block(self):
         return self.chain[-1]
 
@@ -49,6 +52,7 @@ class Blockchain:
         self.chain.append(block)
         return True
 
+    @staticmethod
     def proof_of_work(block):
 
         block.nonce = 0
@@ -65,6 +69,7 @@ class Blockchain:
 
     @classmethod
     def is_valid_proof(cls, block, block_hash):
+
         return (block_hash.startswith('0' * Blockchain.difficulty) and
                 block_hash == block.compute_hash())
 
@@ -87,7 +92,6 @@ class Blockchain:
         return result
 
     def mine(self):
-
         if not self.unconfirmed_transactions:
             return False
 
@@ -108,12 +112,11 @@ class Blockchain:
 
 app = Flask(__name__)
     
+
 blockchain = Blockchain()
 blockchain.create_genesis_block()
-
-
 @app.route("/")
-def front_page():
+def front():
     return "<p>Miner Front Page!</p>"
 
 @app.route('/new_transaction', methods=['POST'])
@@ -143,12 +146,12 @@ def get_chain():
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():
     result = blockchain.mine()
-    if result==0:
+    if not result:
         return "No transactions to mine"
     else:
-       
-        chain_length = len(blockchain.chain)
         return "Block #{} is mined.".format(blockchain.last_block.index)
+
+
 
 
 def create_chain_from_dump(chain_dump):
@@ -156,7 +159,7 @@ def create_chain_from_dump(chain_dump):
     generated_blockchain.create_genesis_block()
     for idx, block_data in enumerate(chain_dump):
         if idx == 0:
-            continue 
+            continue  # skip genesis block
         block = Block(block_data["index"],
                       block_data["transactions"],
                       block_data["timestamp"],
@@ -189,4 +192,5 @@ def verify_and_add_block():
 @app.route('/pending_tx')
 def get_pending_tx():
     return json.dumps(blockchain.unconfirmed_transactions)
+
 
