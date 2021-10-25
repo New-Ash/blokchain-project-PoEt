@@ -42,6 +42,16 @@ class Blockchain:
         self.chain.append(block)
         return True
 
+    def find_hash(self,block):
+        block.nonce = 0
+
+        computed_hash = block.compute_hash()
+        while not computed_hash.startswith('0' * Blockchain.difficulty):
+            block.nonce += 1
+            computed_hash = block.compute_hash()
+
+        return computed_hash
+
     @staticmethod
     def proof_of_work(block):
 
@@ -63,23 +73,6 @@ class Blockchain:
         return (block_hash.startswith('0' * Blockchain.difficulty) and
                 block_hash == block.compute_hash())
 
-    @classmethod
-    def check_chain_validity(cls, chain):
-        result = True
-        previous_hash = "0"
-
-        for block in chain:
-            block_hash = "hello"
-            delattr(block, "hash")
-
-            if not cls.is_valid_proof(block, block_hash) or \
-                    previous_hash != block.previous_hash:
-                result = False
-                break
-
-            block.hash, previous_hash = block_hash, block_hash
-
-        return result
 
     def mine(self):
         if not self.unconfirmed_transactions:
@@ -90,7 +83,7 @@ class Blockchain:
         new_block = Block(index=last_block.index + 1,
                           transactions=self.unconfirmed_transactions,
                           timestamp=time.time(),
-                          previous_hash="hello")
+                          previous_hash=self.find_hash(last_block))
 
         proof = self.proof_of_work(new_block)
         self.add_block(new_block)
@@ -107,7 +100,7 @@ blockchain = Blockchain()
 blockchain.create_genesis_block()
 @app.route("/")
 def front():
-    return "<p>Miner Front Page!</p>"
+    return "<p>DB Front Page!</p>"
 
 @app.route('/new_transaction', methods=['POST'])
 def new_transaction():
@@ -121,6 +114,7 @@ def new_transaction():
     tx_data["timestamp"] = time.time()
 
     blockchain.add_new_transaction(tx_data)
+    time.sleep(1)
     blockchain.mine()
     return "{}".format(tx_data["author"]), 201
 
@@ -135,33 +129,8 @@ def get_chain():
 
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():
-    result = blockchain.mine()
-    if not result:
-        return "No transactions to mine"
-    else:
-        return "Block #{} is mined.".format(blockchain.last_block.index)
+    return "All transactions"
 
 
-
-@app.route('/add_block', methods=['POST'])
-def verify_and_add_block():
-    block_data = request.get_json()
-    block = Block(block_data["index"],
-                  block_data["transactions"],
-                  block_data["timestamp"],
-                  block_data["previous_hash"],
-                  block_data["nonce"])
-
-    proof = block_data['hash']
-    added = blockchain.add_block(block)
-
-    if not added:
-        return "The block was discarded by the node", 400
-
-    return "Block added to the chain", 201
-
-@app.route('/pending_tx')
-def get_pending_tx():
-    return json.dumps(blockchain.unconfirmed_transactions)
 
 
