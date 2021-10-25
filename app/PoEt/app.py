@@ -19,7 +19,7 @@ def PoEt():
         hq.heapify(priority)
         tup=hq.heappop(priority)
         time_old,node= tup
-        time=(time_old%mod+random.randint(1,10)%mod)%mod
+        time=(time_old%mod+random.randint(5,10)%mod)%mod
         hq.heappush(priority,(time,node))
         return json.dumps({'node_priority' : time_old,'node_id' : node})
 

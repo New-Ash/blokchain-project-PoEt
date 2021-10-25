@@ -13,12 +13,13 @@ get_node = "http://127.0.0.1:8000"
 response = requests.get(get_node)
 rsp=(json.loads(response.content))['node_id']
 CONNECTED_NODE_ADDRESS="http://127.0.0.1:500{}".format(rsp)
+GLOBAL_ADD="http://127.0.0.1:5004"
 posts = []
 
 
 def fetch_posts():
     
-    get_chain_address = "{}/chain".format(CONNECTED_NODE_ADDRESS)
+    get_chain_address = "{}/chain".format("http://127.0.0.1:5004")
     response = requests.get(get_chain_address)
     if response.status_code == 200:
         content = []
@@ -73,10 +74,16 @@ def submit_textarea():
     # time.sleep(1)
     # Submit a transaction
     new_tx_address = "{}/new_transaction".format(CONNECTED_NODE_ADDRESS)
-
     requests.post(new_tx_address,
                   json=post_object,
                   headers={'Content-type': 'application/json'})
+
+    # requests.post("http://127.0.0.1:5001"+"/new_transaction",
+    #             json=post_object,
+    #             headers={'Content-type': 'application/json'})
+
+
+
 
     return redirect('/')
 

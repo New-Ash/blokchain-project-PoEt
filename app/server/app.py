@@ -129,6 +129,9 @@ def new_transaction():
             return "Invalid transaction data", 404
 
     tx_data["timestamp"] = time.time()
+    requests.post("http://127.0.0.1:5004/new_transaction",
+                  json=tx_data,
+                  headers={'Content-type': 'application/json'})
 
     blockchain.add_new_transaction(tx_data)
 
@@ -146,30 +149,9 @@ def get_chain():
 @app.route('/mine', methods=['GET'])
 def mine_unconfirmed_transactions():
     result = blockchain.mine()
-    if not result:
-        return "No transactions to mine"
-    else:
-        return "Block #{} is mined.".format(blockchain.last_block.index)
 
+    return "Block has been mined"
 
-
-
-def create_chain_from_dump(chain_dump):
-    generated_blockchain = Blockchain()
-    generated_blockchain.create_genesis_block()
-    for idx, block_data in enumerate(chain_dump):
-        if idx == 0:
-            continue  # skip genesis block
-        block = Block(block_data["index"],
-                      block_data["transactions"],
-                      block_data["timestamp"],
-                      block_data["previous_hash"],
-                      block_data["nonce"])
-        proof = block_data['hash']
-        added = generated_blockchain.add_block(block, proof)
-        if not added:
-            raise Exception("The chain dump is tampered!!")
-    return generated_blockchain
 
 
 @app.route('/add_block', methods=['POST'])
