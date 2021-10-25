@@ -5,25 +5,18 @@ import requests
 from flask import render_template, redirect, request
 import random
 from app import app
+import time
 
-# The node with which our application interacts, there can be multiple
-# such nodes as well.
 
 # CONNECTED_NODE_ADDRESS = "http://127.0.0.1:500{}".format(nodeno)
 get_node = "http://127.0.0.1:8000"
 response = requests.get(get_node)
 rsp=(json.loads(response.content))['node_id']
 CONNECTED_NODE_ADDRESS="http://127.0.0.1:500{}".format(rsp)
-# print("node number :"+ rsp)
 posts = []
 
 
 def fetch_posts():
-    """
-    Function to fetch the chain from a blockchain node, parse the
-    data and store it locally.
-    """
-    
     
     get_chain_address = "{}/chain".format(CONNECTED_NODE_ADDRESS)
     response = requests.get(get_chain_address)
@@ -43,28 +36,41 @@ def fetch_posts():
 
 @app.route('/')
 def index():
-    
+    response = requests.get(get_node)
+    rsp=(json.loads(response.content))['node_id']
+    CONNECTED_NODE_ADDRESS="http://127.0.0.1:500{}".format(rsp)
     fetch_posts()
-    return render_template('index.html',
-                           title="Dexter's Blockchain",
-                           posts=posts,
-                           node_address=CONNECTED_NODE_ADDRESS,
-                           readable_time=timestamp_to_string)
+    return render_template('index.html',title="Dexter's Blockchain",posts=posts,node_address=CONNECTED_NODE_ADDRESS,readable_time=timestamp_to_string)
 
 
 @app.route('/submit', methods=['POST'])
 def submit_textarea():
-    """
-    Endpoint to create a new transaction via our application.
-    """
-    post_content = request.form["content"]
+    amount = request.form["content"]
     author = request.form["author"]
+
+    # i=0
+    # n=len(amount)
+    # while i<n:
+    #     if amount[i]=='.':
+    #         i+=1
+    #         continue
+    #     if (amount[i]>'9' or amount[i]<'0'):
+    #         print("Enter an numerical value for amount :")
+    #         amount=input().strip()
+    #         i=0
+    #         n=len(amount)
+    #         continue
+    #     i+=1
 
     post_object = {
         'author': author,
-        'content': post_content,
+        'content': amount,
     }
+    response = requests.get(get_node)
+    rsp=(json.loads(response.content))['node_id']
+    CONNECTED_NODE_ADDRESS="http://127.0.0.1:500{}".format(rsp)
 
+    # time.sleep(1)
     # Submit a transaction
     new_tx_address = "{}/new_transaction".format(CONNECTED_NODE_ADDRESS)
 

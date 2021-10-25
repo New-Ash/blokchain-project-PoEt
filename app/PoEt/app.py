@@ -6,7 +6,8 @@ import heapq as hq
 
 mod=5000
 
-priority =[(random.randint(1,10),1),(random.randint(1,10),2),(random.randint(1,10),3)]
+priority =[(random.randint(1,10),1)]
+# ,(random.randint(1,10),2),(random.randint(1,10),3)
 
 app = Flask(__name__)
 
